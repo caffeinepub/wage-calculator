@@ -7,9 +7,9 @@ import Float "mo:core/Float";
 import Map "mo:core/Map";
 import Order "mo:core/Order";
 import Nat32 "mo:core/Nat32";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   type WageEntry = {
     wageTypeCode : Text;

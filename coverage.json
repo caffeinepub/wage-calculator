@@ -1,39 +1,30 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T19:48:16.524Z",
+  "generatedAt": "2026-02-25T19:55:48.137Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 1,
-    "implemented": 1,
+    "implemented": 0,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "On initial load (when no wage entries exist in the backend), automatically seed the following 6 default wage entries so the table is pre-populated:\n1. Lohnart: 0001, Bezeichnung: 'Stundenlohn', Menge: 156, Faktor: 20.00, Zuschlag: –, ST: L, SV: L, GB: J, Betrag: 3120.00\n2. Lohnart: 0129, Bezeichnung: 'Nachtzuschlag 40%', Menge: 96, Faktor: 20.00, Zuschlag: 40%, ST: F, SV: F, GB: J, Betrag: 768.00\n3. Lohnart: 0130, Bezeichnung: 'Schmutzzulage 10%', Menge: 156, Faktor: 20.00, Zuschlag: 10%, ST: L, SV: L, GB: J, Betrag: 312.00\n4. Lohnart: 0200, Bezeichnung: 'Verpflegungspauschale', Menge: 18, Faktor: 14.00, Zuschlag: –, ST: F, SV: F, GB: N, Betrag: 252.00 (Pauschalbetrag)\n5. Lohnart: 0201, Bezeichnung: 'Wohn-/Tätigkeitspauschale', Menge: 1, Faktor: 173.89, Zuschlag: –, ST: F, SV: F, GB: N, Betrag: 173.89 (Pauschalbetrag)\n6. Lohnart: 0300, Bezeichnung: 'Feiertag', Menge: 8, Faktor: 20.00, Zuschlag: –, ST: L, SV: L, GB: J, Betrag: 160.00\nThe seeding must only run once when the stored entries list is empty. The resulting Summe Brutto must equal 4,785.89 €.",
-        "status": "implemented",
+        "summary": "Make the PayrollSummary component visible on the WageCalculator page, rendered directly below the WageEntryTable, so that the summary values (Steuer-Brutto, SV-Brutto, Nettoentgelt, Auszahlung) are always visible without any additional user action.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/hooks/useSeedDefaultEntries.ts",
           "frontend/src/pages/WageCalculator.tsx"
         ],
-        "matchedFiles": [
-          "frontend/src/hooks/useSeedDefaultEntries.ts",
-          "frontend/src/pages/WageCalculator.tsx"
-        ]
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/hooks/useSeedDefaultEntries.ts",
-    "frontend/src/pages/WageCalculator.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
