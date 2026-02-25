@@ -1,0 +1,24 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-on-initial-load-when-no-wage-entries-exist-in-the-backend-automatically-seed-the-following-6-default-wage-entries-so-the-table-is-pre-populated-1-lohnart-0001-bezeichnung-stundenlohn-menge-156-faktor-20-00-zuschlag-st-l-sv-l-gb-j-betrag-3120-00-2-lohnart-0129-bezeichnung-nachtzuschlag-40-menge-96-faktor-20-00-zuschlag-40-st-f-sv-f-gb-j-betrag-768-00-3-lohnart-0130-bezeichnung-schmutzzulage-10-menge-156-faktor-20-00-zuschlag-10-st-l-sv-l-gb-j-betrag-312-00-4-lohnart-0200-bezeichnung-verpflegungspauschale-menge-18-faktor-14-00-zuschlag-st-f-sv-f-gb-n-betrag-252-00-pauschalbetrag-5-lohnart-0201-bezeichnung-wohn-t-tigkeitspauschale-menge-1-faktor-173-89-zuschlag-st-f-sv-f-gb-n-betrag-173-89-pauschalbetrag-6-lohnart-0300-bezeichnung-feiertag-menge-8-faktor-20-00-zuschlag-st-l-sv-l-gb-j-betrag-160-00-the-seeding-must-only-run-once-when-the-stored-entries-list-is-empty-the-resulting-summe-brutto-must-equal-4-785-89",
+      "featureTitle": "On initial load (when no wage entries exist in the backend), automatically seed the following 6 default wage entries so the table is pre-populated:\n1. Lohnart: 0001, Bezeichnung: 'Stundenlohn', Menge: 156, Faktor: 20.00, Zuschlag: –, ST: L, SV: L, GB: J, Betrag: 3120.00\n2. Lohnart: 0129, Bezeichnung: 'Nachtzuschlag 40%', Menge: 96, Faktor: 20.00, Zuschlag: 40%, ST: F, SV: F, GB: J, Betrag: 768.00\n3. Lohnart: 0130, Bezeichnung: 'Schmutzzulage 10%', Menge: 156, Faktor: 20.00, Zuschlag: 10%, ST: L, SV: L, GB: J, Betrag: 312.00\n4. Lohnart: 0200, Bezeichnung: 'Verpflegungspauschale', Menge: 18, Faktor: 14.00, Zuschlag: –, ST: F, SV: F, GB: N, Betrag: 252.00 (Pauschalbetrag)\n5. Lohnart: 0201, Bezeichnung: 'Wohn-/Tätigkeitspauschale', Menge: 1, Faktor: 173.89, Zuschlag: –, ST: F, SV: F, GB: N, Betrag: 173.89 (Pauschalbetrag)\n6. Lohnart: 0300, Bezeichnung: 'Feiertag', Menge: 8, Faktor: 20.00, Zuschlag: –, ST: L, SV: L, GB: J, Betrag: 160.00\nThe seeding must only run once when the stored entries list is empty. The resulting Summe Brutto must equal 4,785.89 €.",
+      "files": [
+        "frontend/src/hooks/useSeedDefaultEntries.ts",
+        "frontend/src/pages/WageCalculator.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

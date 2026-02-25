@@ -1,0 +1,35 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Pre-fill default Lohnarten wage entries on app load",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Automatically seed 6 default wage entries (Stundenlohn, Nachtzuschlag 40%, Schmutzzulage 10%, Verpflegungspauschale, Wohn-/Tätigkeitspauschale, Feiertag) on initial load when no entries exist, ensuring Summe Brutto equals 4,785.89 €",
+      "acceptanceCriteria": [
+        "When the app is opened with an empty backend store, all 6 wage entries are visible in the Lohnarten-Übersicht table without any user action.",
+        "Stundenlohn row shows Menge=156, Faktor=20.00, Betrag=3.120,00 €.",
+        "Nachtzuschlag 40% row shows Menge=96, Faktor=20.00, Zuschlag=40%, Betrag=768,00 €.",
+        "Schmutzzulage 10% row shows Menge=156, Faktor=20.00, Zuschlag=10%, Betrag=312,00 €.",
+        "Verpflegungspauschale row shows Menge=18, Faktor=14.00, Betrag=252,00 € and is marked as Pauschalbetrag / steuerfreie Verpflegungspauschale.",
+        "Wohn-/Tätigkeitspauschale row shows Betrag=173,89 € and is marked as Pauschalbetrag.",
+        "Feiertag row shows Menge=8, Faktor=20.00, Betrag=160,00 €.",
+        "The table totals footer displays Gesamt = 4.785,89 €.",
+        "Seeding does NOT run again if entries already exist (idempotent).",
+        "All existing CRUD operations (add, edit, delete) continue to work normally after seeding."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useSeedDefaultEntries.ts",
+          "operation": "create",
+          "description": "Create a custom React hook that checks if the backend wage entry store is empty and, if so, seeds exactly 6 default wage entries using the addOrUpdateWageEntry backend method. The hook must define the 6 entries with exact values: (1) Lohnart 0001 Stundenlohn with quantity=156, rate=20.00, amount=3120.00, taxFlag='L', socialInsuranceFlag='L', taxableBenefitFlag='J'; (2) Lohnart 0129 Nachtzuschlag 40% with quantity=96, rate=20.00, percentageSurcharge=40, amount=768.00, taxFlag='F', socialInsuranceFlag='F', taxableBenefitFlag='J'; (3) Lohnart 0130 Schmutzzulage 10% with quantity=156, rate=20.00, percentageSurcharge=10, amount=312.00, taxFlag='L', socialInsuranceFlag='L', taxableBenefitFlag='J'; (4) Lohnart 0200 Verpflegungspauschale with quantity=18, rate=14.00, amount=252.00, taxFlag='F', socialInsuranceFlag='F', taxableBenefitFlag='N'; (5) Lohnart 0201 Wohn-/Tätigkeitspauschale with quantity=1, rate=173.89, amount=173.89, taxFlag='F', socialInsuranceFlag='F', taxableBenefitFlag='N'; (6) Lohnart 0300 Feiertag with quantity=8, rate=20.00, amount=160.00, taxFlag='L', socialInsuranceFlag='L', taxableBenefitFlag='J'. The hook must only execute seeding once (idempotent), use React Query mutations from useQueries.ts for addOrUpdateWageEntry, check getAllWageEntries to confirm the store is empty before seeding, and invalidate the wage entries query after successful seeding. Return loading and error states for UI feedback."
+        },
+        {
+          "path": "frontend/src/pages/WageCalculator.tsx",
+          "operation": "modify",
+          "description": "Import and invoke the useSeedDefaultEntries hook at the top of the WageCalculator component to trigger automatic seeding when the component mounts and the backend store is empty. Ensure the seeding completes before the user interacts with the table, and display appropriate loading or error feedback if seeding is in progress or fails. Do not alter existing form visibility or edit state management."
+        }
+      ]
+    }
+  ]
+}

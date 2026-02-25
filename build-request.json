@@ -1,0 +1,52 @@
+{
+  "kind": "build_request",
+  "title": "Pre-fill default Lohnarten wage entries on app load",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "On initial load (when no wage entries exist in the backend), automatically seed the following 6 default wage entries so the table is pre-populated:\n1. Lohnart: 0001, Bezeichnung: 'Stundenlohn', Menge: 156, Faktor: 20.00, Zuschlag: –, ST: L, SV: L, GB: J, Betrag: 3120.00\n2. Lohnart: 0129, Bezeichnung: 'Nachtzuschlag 40%', Menge: 96, Faktor: 20.00, Zuschlag: 40%, ST: F, SV: F, GB: J, Betrag: 768.00\n3. Lohnart: 0130, Bezeichnung: 'Schmutzzulage 10%', Menge: 156, Faktor: 20.00, Zuschlag: 10%, ST: L, SV: L, GB: J, Betrag: 312.00\n4. Lohnart: 0200, Bezeichnung: 'Verpflegungspauschale', Menge: 18, Faktor: 14.00, Zuschlag: –, ST: F, SV: F, GB: N, Betrag: 252.00 (Pauschalbetrag)\n5. Lohnart: 0201, Bezeichnung: 'Wohn-/Tätigkeitspauschale', Menge: 1, Faktor: 173.89, Zuschlag: –, ST: F, SV: F, GB: N, Betrag: 173.89 (Pauschalbetrag)\n6. Lohnart: 0300, Bezeichnung: 'Feiertag', Menge: 8, Faktor: 20.00, Zuschlag: –, ST: L, SV: L, GB: J, Betrag: 160.00\nThe seeding must only run once when the stored entries list is empty. The resulting Summe Brutto must equal 4,785.89 €.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Stundenlohn 1 – 156,00 × 20,00 = 3.120,00",
+          "Nachtzuschlag 40% – 96,00 × 20,00 × 40% = 768,00",
+          "Schmutzzulage 10% – 156,00 × 20,00 × 10% = 312,00",
+          "Verpflegungspauschale\t18 × 14 €\t252,00",
+          "Wohn-/Tätigkeitspauschale\tPauschal\t173,89",
+          "Feiertag\t8 h × 20 €\t160,00",
+          "3120+768+312+252+173,89+160=4.785,89"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When the app is opened with an empty backend store, all 6 wage entries are visible in the Lohnarten-Übersicht table without any user action.",
+        "Stundenlohn row shows Menge=156, Faktor=20.00, Betrag=3.120,00 €.",
+        "Nachtzuschlag 40% row shows Menge=96, Faktor=20.00, Zuschlag=40%, Betrag=768,00 €.",
+        "Schmutzzulage 10% row shows Menge=156, Faktor=20.00, Zuschlag=10%, Betrag=312,00 €.",
+        "Verpflegungspauschale row shows Menge=18, Faktor=14.00, Betrag=252,00 € and is marked as Pauschalbetrag / steuerfreie Verpflegungspauschale.",
+        "Wohn-/Tätigkeitspauschale row shows Betrag=173,89 € and is marked as Pauschalbetrag.",
+        "Feiertag row shows Menge=8, Faktor=20.00, Betrag=160,00 €.",
+        "The table totals footer displays Gesamt = 4.785,89 €.",
+        "Seeding does NOT run again if entries already exist (idempotent).",
+        "All existing CRUD operations (add, edit, delete) continue to work normally after seeding."
+      ]
+    }
+  ],
+  "constraints": [
+    "Seeding must be idempotent — only insert default entries when the backend store is empty.",
+    "Do not modify files under frontend/src/hooks/ (immutable paths).",
+    "Do not alter the existing WageEntry data model or backend getSummary logic beyond what is needed to store the new entries."
+  ],
+  "nonGoals": [
+    "Changing the payroll summary calculation logic.",
+    "Adding new UI fields or form controls beyond what already exists.",
+    "Resetting user-created entries back to defaults at any point."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}
