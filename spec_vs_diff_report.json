@@ -1,20 +1,100 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T19:55:48.135Z",
-  "summary": "The diff only modifies project_state.json to register REQ-1 as a pending feature request. No actual frontend implementation has been made — the PayrollSummary component has not been rendered on the WageCalculator page, no loading skeletons have been added, and no layout/responsiveness changes have been implemented.",
+  "generatedAt": "2026-03-02T21:35:44.745Z",
+  "summary": "The diff only modifies project_state.json, which is a planning/state tracking file that records all requirements as 'pending' feature requests. No actual implementation files (TypeScript modules, React components, HTML, CSS, etc.) have been added or modified. All 11 requirements remain unimplemented.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Make the PayrollSummary component visible on the WageCalculator page, rendered directly below the WageEntryTable, so that the summary values (Steuer-Brutto, SV-Brutto, Nettoentgelt, Auszahlung) are always visible without any additional user action.",
-      "reason": "The diff contains only a change to project_state.json marking the feature as 'pending'. No frontend code changes were made to render PayrollSummary below WageEntryTable, display the four values, show loading skeletons, or ensure responsive layout.",
+      "requirement": "Embed the official PAP Lohnsteuer 2026 engine (BigDecimal, SqLohnsteuer, PapLohnsteuer classes) directly in the frontend codebase as a self-contained TypeScript/JS module.",
+      "reason": "No source files were added or modified. The project_state.json marks this as 'pending' with no implementation.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Implement a payroll data entry section (Lohndaten Erfassung) with all six wage input rows and Abrechnungs-Brutto footer.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Implement a tax and social-insurance parameter panel (Steuer- & SV-Parameter) with all required controls.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Implement a payroll results panel (Abrechnungsergebnis) showing all itemized deductions and Auszahlungsbetrag.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "requirement": "Implement an employer cost breakdown section (Arbeitgeber-Anteile & Gesamtkosten) with all AG shares and Gesamtbelastung total.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "requirement": "Implement an entrepreneur KPI panel (Unternehmer-Kennzahlen) with all 7 KPI values.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "requirement": "Implement employee master data inputs (Stammdaten) for Mitarbeiter name, Personal-Nr., and Abrechnungsmonat in a top bar.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "requirement": "Persist all user inputs to localStorage and provide a RESET button with confirmation dialog.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "requirement": "Implement an Excel export (XLSX) with structured spreadsheet sections and filename including Abrechnungsmonat and Mitarbeiter name.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "requirement": "Implement a PDF export using jsPDF + jsPDF-AutoTable with payroll document structure.",
+      "reason": "No frontend component files were created. Status is 'pending' in project_state.json.",
+      "evidence": [
+        "project_state.json"
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "requirement": "Apply a professional dark-slate and amber accent visual theme with responsive two-column grid layout and JetBrains Mono for numeric outputs.",
+      "reason": "No frontend styling or layout files were created. Status is 'pending' in project_state.json.",
       "evidence": [
         "project_state.json"
       ]
     }
   ],
   "hallucinated_features": [],
-  "confidence": 0.97,
+  "confidence": 0.98,
   "changed_files": [
     "project_state.json"
   ]

@@ -1,23 +1,209 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Show payroll summary below wage entries",
+  "title": "Lohn-Simulator XAL GmbH v10.0 – Frontend Payroll Calculator with PAP 2026",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Make the PayrollSummary component always visible below the WageEntryTable on the WageCalculator page",
+      "summary": "Embed official PAP Lohnsteuer 2026 calculation engine as a client-side TypeScript module",
       "acceptanceCriteria": [
-        "The PayrollSummary card is rendered on the WageCalculator page below the WageEntryTable without requiring a button click or toggle.",
-        "All four key values are displayed: Steuer-Brutto, SV-Brutto, Nettoentgelt, and Auszahlung.",
-        "The summary updates automatically when wage entries are added, edited, or deleted.",
-        "Loading skeletons are shown while the payroll summary is being fetched.",
-        "The layout is responsive and visually consistent with the existing design."
+        "BigDecimal, SqLohnsteuer, and PapLohnsteuer classes are importable from a dedicated module (e.g. frontend/src/lib/lohnsteuer2026.ts).",
+        "No jQuery dependency — the jQuery shim stub is handled internally.",
+        "Calling sqLst.calculate() with a monthly gross value returns correct Lohnsteuer, Soli, KiSt, and SV figures consistent with the reference HTML."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/WageCalculator.tsx",
+          "path": "frontend/src/lib/lohnsteuer2026.ts",
+          "operation": "create",
+          "description": "Port the official PAP Lohnsteuer 2026 engine (BigDecimal, SqLohnsteuer, PapLohnsteuer classes) from the user's HTML into a self-contained TypeScript module with type-safe exports. Replace all jQuery references with no-op stubs or vanilla equivalents. Preserve the mathematical formulas exactly as provided without modification."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Implement payroll data entry section with six wage input rows and reactive total calculation",
+      "acceptanceCriteria": [
+        "All six wage rows are rendered in a table with Quantity, Factor, and Amount columns.",
+        "Schmutzzulage is auto-calculated as 10% of the base Stundenlohn amount with no manual input.",
+        "Verpflegung uses a fixed rate of €14.00 per day.",
+        "Abrechnungs-Brutto footer sums all rows and updates reactively on any input change."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/LohndatenErfassung.tsx",
+          "operation": "create",
+          "description": "Create a controlled component rendering six wage input rows: Stundenlohn 1 (quantity × hourly rate), Nachtzuschlag 40% (hours × base rate × 1.4), Schmutzzulage 10% (auto-calculated from Stundenlohn, read-only), Feiertag (hours × base rate), Verpflegungstage (count × €14.00 fixed), and Wohn-/Tätigkeitspauschale (direct euro amount). Use yellow-highlighted input fields with Tailwind classes, compute row amounts reactively, and display Abrechnungs-Brutto total footer. Emit onChange events for parent state management."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Implement tax and social-insurance parameter panel with all German payroll configuration controls",
+      "acceptanceCriteria": [
+        "All parameter controls render with their correct default values (StKl I, ZKF 0, NW, KVZ 2.9, kinderlos, 1990, KiSt yes).",
+        "Changing any parameter immediately triggers recalculation.",
+        "KiSt-Satz display shows 8% for BW/BY, 9% for all other states, and '--' when Kirchensteuer is disabled."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/SteuerSvParameter.tsx",
+          "operation": "create",
+          "description": "Create a parameter panel component with controls for Steuerklasse (select I–VI), Kinderfreibetrag (number 0–4.0 step 0.5), Bundesland (select all 16 states), KV-Zusatzbeitrag % (number input default 2.9), PV-Situation (dropdown: kinderlos ü23, 1 Kind/u23, 2–5+ Kinder u25), Geburtsjahr (number), Kirchensteuer (checkbox), and a derived read-only KiSt-Satz display that shows 8% for BW/BY, 9% otherwise, or '--' if disabled. Use shadcn/ui Select and Input components. Emit onChange for parent state."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Implement payroll results panel showing detailed tax and SV deductions with Auszahlungsbetrag total",
+      "acceptanceCriteria": [
+        "All result fields update reactively whenever any input or parameter changes.",
+        "KV sub-rows for gesetzlicher Anteil and Zusatzbeitrag are displayed as indented sub-items.",
+        "Auszahlungsbetrag = Steuer-Netto + steuerfreie Bezüge, displayed prominently in a blue highlight box."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AbrechnungsErgebnis.tsx",
+          "operation": "create",
+          "description": "Create a results panel component displaying Steuer-Brutto, itemized tax deductions (Lohnsteuer, Soli, Kirchensteuer, Σ Steuerabzüge), itemized AN social-insurance deductions with nested KV sub-rows (RV 9.3%, AV 1.3%, KV gesetzlich + Zusatzbeitrag indented, PV, Σ SV-Abzüge), steuerfreie/pauschale Bezüge section (Nachtzuschlag, Verpflegung, Wohn-/Tätigkeitspauschale, Σ Steuerfrei), Abrechnungs-Netto, and a prominently styled Auszahlungsbetrag box (Steuer-Netto + steuerfreie Bezüge) with blue highlight. Use JetBrains Mono for all numeric values. Accept calculation results as props."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Implement employer cost breakdown section showing AG shares and total burden",
+      "acceptanceCriteria": [
+        "All AG cost fields are derived from the PAP engine output and update reactively.",
+        "Pauschale LSt = Wohn-/Tätigkeitspauschale × 16.86%.",
+        "Gesamtbelastung AG total is displayed large and prominently in an amber-toned card."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ArbeitgeberAnteile.tsx",
+          "operation": "create",
+          "description": "Create an employer costs component showing AG shares: RV (AG), AV (AG), KV gesetzlicher Anteil (AG), KV Zusatzbeitrag (AG), PV (AG), Insolvenzumlage, Σ AG-Sozialversicherung, pauschale LSt on Wohn-/Tätigkeitspauschale (16.86%), and a prominent Gesamtbelastung Arbeitgeber total (Brutto + AG-SV + pauschale LSt) displayed large in an amber gradient card (from-amber-50 to-orange-50). Use JetBrains Mono for numbers. Accept calculation results as props."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Implement entrepreneur KPI panel showing 7 profitability and cost metrics",
+      "acceptanceCriteria": [
+        "All 7 KPI values update reactively.",
+        "Break-Even and Angebot/Stunde are visually distinguished (orange and green respectively).",
+        "DB2 is labeled as the true profit after all employer costs."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/UnternehmerKennzahlen.tsx",
+          "operation": "create",
+          "description": "Create a KPI panel component displaying 7 metrics: Kosten pro Stunde (Gesamtkosten AG ÷ Arbeitsstunden), Nettoquote (%), Nebenkostenquote (%), Break-Even/Stunde (orange accent), Angebot/Stunde +20% (green accent), DB1 (Umsatz − Brutto), and DB2 (DB1 − AG-SV − pauschale LSt, labeled as true profit). Use JetBrains Mono for numbers. Accept total hours input and calculation results as props."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Implement employee master data inputs displayed in top bar below header",
+      "acceptanceCriteria": [
+        "All three fields are editable inline.",
+        "Abrechnungsmonat is visually highlighted (blue border/text) to indicate importance.",
+        "Values are persisted to localStorage and restored on page load."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Stammdaten.tsx",
+          "operation": "create",
+          "description": "Create a top bar component for employee master data with inline editable inputs for Mitarbeiter name, Personal-Nr., and Abrechnungsmonat (free text, e.g. 'März 2026'). Apply blue border/text styling to Abrechnungsmonat. Persist all values to localStorage on change and restore on mount. Emit onChange for parent state."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Persist all user inputs to localStorage with auto-restore and reset functionality",
+      "acceptanceCriteria": [
+        "All input field values survive a page refresh.",
+        "RESET button shows a confirmation dialog before clearing.",
+        "After reset, all fields revert to their default values."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/usePayrollState.ts",
+          "operation": "create",
+          "description": "Create a custom hook managing all payroll form state (wage inputs, parameter selections, master data fields) with automatic localStorage persistence on every state change and restoration on mount. Export a resetState function that shows a confirmation dialog (use window.confirm or shadcn/ui AlertDialog) before clearing localStorage and resetting state to defaults."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Implement Excel export with structured payroll spreadsheet generation",
+      "acceptanceCriteria": [
+        "Clicking the EXCEL button triggers a download of a .xlsx file.",
+        "The spreadsheet contains all six data sections with correct labels and values.",
+        "Filename format: Lohn_[Monat]_[Name].xlsx"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/excelExport.ts",
+          "operation": "create",
+          "description": "Create an Excel export utility function using SheetJS (xlsx library) that generates a structured spreadsheet with sections for Brutto-Bestandteile, Steuerabzüge, Sozialversicherung (AN), Steuerfreie Bezüge, Ergebnis, and Arbeitgeber-Anteile. Accept payroll data and master data as parameters. Generate filename as Lohn_[Abrechnungsmonat]_[Mitarbeiter].xlsx and trigger download via XLSX.writeFile."
+        },
+        {
+          "path": "frontend/src/components/ExportButtons.tsx",
+          "operation": "create",
+          "description": "Create an export buttons component rendering EXCEL and PDF action buttons. Wire the EXCEL button to call the excelExport utility with current payroll state. Accept all necessary payroll data and master data as props."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Implement PDF export with formatted payroll document generation",
+      "acceptanceCriteria": [
+        "Clicking the PDF button triggers a download of a .pdf file.",
+        "Both tables use a dark header style matching the app's color scheme.",
+        "Auszahlung is printed in bold at the bottom of the document.",
+        "Filename format: Lohn_[Monat].pdf"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/pdfExport.ts",
+          "operation": "create",
+          "description": "Create a PDF export utility function using jsPDF and jsPDF-AutoTable that generates a payroll document with a header (title + Mitarbeiter info from master data), a Brutto components table, a deductions and additions table (Steuer, SV, steuerfreie Bezüge), and a final bold Auszahlung line. Use dark slate (#1e293b) table headers. Generate filename as Lohn_[Abrechnungsmonat].pdf and trigger download via doc.save()."
+        },
+        {
+          "path": "frontend/src/components/ExportButtons.tsx",
           "operation": "modify",
-          "description": "Remove the conditional rendering logic for PayrollSummary and render it directly below WageEntryTable in the main container. Ensure the component remains reactive to wage entry changes by keeping the existing React Query integration intact."
+          "description": "Wire the PDF button to call the pdfExport utility with current payroll state. Ensure both export buttons are visually styled consistently with the app theme."
+        }
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "summary": "Apply professional dark-slate and amber visual theme with responsive two-column layout",
+      "acceptanceCriteria": [
+        "All numeric result values use JetBrains Mono font.",
+        "Yellow/highlighted input fields are visually distinct from read-only display fields.",
+        "On screens ≥ lg breakpoint, the layout splits into a 7-column left pane and 5-column right pane.",
+        "On mobile, all sections stack vertically."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Extend global styles with custom CSS classes for yellow highlighted inputs (.input-highlight), dark slate backgrounds (slate-800/900), amber gradient cards, and ensure JetBrains Mono is applied to all numeric output elements (.numeric-output class). Define table header styles using #1e293b. Verify Inter and JetBrains Mono fonts are imported."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Ensure JetBrains Mono is registered in the font family config. Verify or extend the theme with amber, orange, slate, and blue color utilities needed for the design system. Confirm the responsive breakpoints support the lg:grid-cols-12 layout split."
+        },
+        {
+          "path": "frontend/src/pages/LohnSimulatorPage.tsx",
+          "operation": "create",
+          "description": "Create the main payroll simulator page component that composes all sub-components: Stammdaten at the top, a responsive two-column grid (lg:grid-cols-12 with 7/5 split for left/right panes, stacking on mobile), left pane containing LohndatenErfassung and SteuerSvParameter, right pane containing AbrechnungsErgebnis, ArbeitgeberAnteile, UnternehmerKennzahlen, and ExportButtons. Integrate usePayrollState hook for state management. Call the lohnsteuer2026 calculation engine reactively when inputs change and pass results to child components. Apply dark slate header styling."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Replace the current WageCalculator main content with the new LohnSimulatorPage component. Update the header branding text to 'Lohn-Simulator XAL GmbH v10.0' or similar. Ensure the layout supports the dark-slate and amber theme. Remove or comment out references to the old wage calculator components (WageEntryForm, WageEntryTable, PayrollSummary) if they are no longer needed."
         }
       ]
     }

@@ -1,29 +1,110 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Payroll/wage type calculator with pre-filled wage types and a summary overview showing Steuer-Brutto, SV-Brutto, Nettoentgelt, and Auszahlung.",
-  "architectural_notes": [],
+  "summary": "German payroll simulator app (Lohn-Simulator XAL GmbH v10.0) using official PAP Lohnsteuer 2026 engine. Features: hourly wage input, night shift/dirt/holiday/meal/housing allowances, tax class and SV parameters, employer cost breakdown, Excel/PDF export, localStorage persistence, and entrepreneur KPIs.",
+  "architectural_notes": [
+    "Single-file HTML app using embedded PAP Lohnsteuer 2026 engine (SqLohnsteuer + PapLohnsteuer classes with BigDecimal arithmetic)",
+    "Tax calculation: only steuerpflichtige Bezüge (L) go into PAP engine; steuerfreie (F) and pauschale (P) components are added back to net for payout",
+    "jQuery shim provided for compatibility with PAP engine's internal $ references",
+    "Export: jsPDF + jspdf-autotable for PDF, SheetJS (xlsx) for Excel",
+    "localStorage persistence with 'v10_' prefix for all input field IDs",
+    "Pauschale Lohnsteuer on Wohn-/Tätigkeitspauschale calculated at 16.86% as AG cost"
+  ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Show summary overview (Steuer-Brutto, SV-Brutto, Nettoentgelt, Auszahlung) below wage types",
-      "reqIds": [],
+      "summary": "Embed the official PAP Lohnsteuer 2026 engine (BigDecimal, SqLohnsteuer, PapLohnsteuer classes as provided in the user's HTML) directly in the frontend codebase as a self-contained TypeScript/JS module so it can be called client-side without any backend round-trip.",
+      "reqIds": [
+        "REQ-1"
+      ],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Make the PayrollSummary component visible on the WageCalculator page, rendered directly below the WageEntryTable, so that the summary values (Steuer-Brutto, SV-Brutto, Nettoentgelt, Auszahlung) are always visible without any additional user action.",
+      "summary": "Implement a payroll data entry section (Lohndaten Erfassung) with the following input rows, each with highlighted yellow input fields: Stundenlohn 1 (quantity hours + hourly rate), Nachtzuschlag 40% (hours), Schmutzzulage 10% (auto-calculated from base wage), Feiertag (hours), Verpflegungstage (count × €14.00 fixed rate), and Wohn-/Tätigkeitspauschale (direct euro amount). Display computed row amounts and a total Abrechnungs-Brutto footer.",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Implement a tax and social-insurance parameter panel (Steuer- & SV-Parameter) with controls for: Steuerklasse (I–VI), Kinderfreibetrag (0–4.0 in 0.5 steps), Bundesland (all 16 German states), KV-Zusatzbeitrag % (numeric input, default 2.9), PV-Situation dropdown (kinderlos ü23, 1 Kind/u23, 2–5+ Kinder u25), Geburtsjahr (numeric), Kirchensteuer (yes/no), and a derived KiSt-Satz display (8% for BW/BY, 9% otherwise, '--' if disabled).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Implement a payroll results panel (Abrechnungsergebnis) on the right side of the layout showing: Steuer-Brutto, itemized tax deductions (Lohnsteuer, Soli, Kirchensteuer, Σ Steuerabzüge), itemized AN social-insurance deductions (RV 9.3%, AV 1.3%, KV including gesetzl. and Zusatzbeitrag sub-rows, PV, Σ SV-Abzüge), steuerfreie/pauschale Bezüge section (Nachtzuschlag, Verpflegung, Wohn-/Tätigkeitspauschale, Σ Steuerfrei), Abrechnungs-Netto, and a highlighted Auszahlungsbetrag box (Steuer-Netto + steuerfreie Bezüge).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Implement an employer cost breakdown section (Arbeitgeber-Anteile & Gesamtkosten) showing AG shares: RV (AG), AV (AG), KV gesetzlicher Anteil (AG), KV Zusatzbeitrag (AG), PV (AG), Insolvenzumlage, Σ AG-Sozialversicherung, pauschale LSt on Wohn-/Tätigkeitspauschale (16.86%), and a prominent Gesamtbelastung Arbeitgeber total (Brutto + AG-SV + pauschale LSt).",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Implement an entrepreneur KPI panel (Unternehmer-Kennzahlen) showing: Kosten pro Stunde (Gesamtkosten AG ÷ Arbeitsstunden), Nettoquote (Auszahlung ÷ AG-Gesamtkosten × 100), Nebenkostenquote ((AG-SV + pauschale LSt) ÷ AG-Gesamtkosten × 100), Break-Even/Stunde (= Kosten pro Stunde), Angebot/Stunde (Break-Even × 1.20), DB1 (Umsatz mit Angebot − Abrechnungs-Brutto), and DB2 (DB1 − AG-SV − pauschale LSt).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Implement employee master data inputs (Stammdaten) for Mitarbeiter name, Personal-Nr., and Abrechnungsmonat (free text, e.g. 'März 2026'), displayed in a top bar below the main header.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Persist all user inputs (wage inputs, parameter selections, and master data fields) to localStorage on every change, and restore them on page load. Provide a RESET button that clears localStorage and reloads the page after user confirmation.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Implement an Excel export (XLSX) that generates a structured spreadsheet with sections for Brutto-Bestandteile, Steuerabzüge, Sozialversicherung (AN), Steuerfreie Bezüge, Ergebnis, and Arbeitgeber-Anteile. The filename must include the Abrechnungsmonat and Mitarbeiter name.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Implement a PDF export using jsPDF + jsPDF-AutoTable that generates a payroll document with a header (title + Mitarbeiter info), a Brutto components table, a deductions and additions table, and a final Auszahlung line. The filename must include the Abrechnungsmonat.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Apply a professional dark-slate and amber accent visual theme throughout the app: dark slate header/table headers (#1e293b / slate-800), yellow highlighted input fields, blue results panel on dark background (slate-900), amber employer costs card, green/orange KPI accents, and monospace (JetBrains Mono) for all numeric outputs. The layout must be responsive with a two-column grid (7/5 split) on desktop and single column on mobile.",
+      "reqIds": [
+        "REQ-11"
       ],
       "status": "pending"
     }
   ],
   "gameProjectType": "none",
-  "projectName": "Lohnabrechnung",
+  "projectName": "Lohn-Simulator XAL GmbH",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
