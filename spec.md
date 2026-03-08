@@ -1,19 +1,70 @@
-# Specification
+# Lohnrechner (AOK-Stil)
 
-## Summary
-**Goal:** Build a fully client-side German payroll simulator (Lohn-Simulator XAL GmbH v10.0) with the official PAP Lohnsteuer 2026 engine embedded as a TypeScript module, covering wage entry, tax/SV parameters, results, employer costs, KPIs, and export functionality.
+## Current State
 
-**Planned changes:**
-- Embed the official PAP Lohnsteuer 2026 engine (BigDecimal, SqLohnsteuer, PapLohnsteuer) as a self-contained client-side TypeScript module with no jQuery dependency
-- Implement a Lohndaten Erfassung section with six wage rows (Stundenlohn, Nachtzuschlag 40%, Schmutzzulage 10%, Feiertag, Verpflegungstage, Wohn-/Tätigkeitspauschale), computed row amounts, and an Abrechnungs-Brutto footer
-- Implement a Steuer- & SV-Parameter panel with controls for Steuerklasse, Kinderfreibetrag, Bundesland, KV-Zusatzbeitrag, PV-Situation, Geburtsjahr, Kirchensteuer, and derived KiSt-Satz display
-- Implement an Abrechnungsergebnis results panel showing Steuer-Brutto, itemized tax deductions, itemized AN SV deductions, steuerfreie Bezüge section, Abrechnungs-Netto, and a highlighted Auszahlungsbetrag box
-- Implement an Arbeitgeber-Anteile & Gesamtkosten section showing all AG SV shares, pauschale LSt on Wohn-/Tätigkeitspauschale (16.86%), and a prominent Gesamtbelastung Arbeitgeber total
-- Implement an Unternehmer-Kennzahlen KPI panel with 7 reactive metrics (Kosten/Stunde, Nettoquote, Nebenkostenquote, Break-Even, Angebot/Stunde, DB1, DB2)
-- Implement a top Stammdaten bar with editable Mitarbeiter name, Personal-Nr., and Abrechnungsmonat fields
-- Persist all inputs to localStorage on every change and restore on page load; provide a RESET button with confirmation dialog
-- Implement XLSX export (SheetJS) with six data sections and filename including Monat and Mitarbeiter name
-- Implement PDF export (jsPDF + jsPDF-AutoTable) with header, tables, and bold Auszahlung line
-- Apply a professional dark-slate/amber accent theme with JetBrains Mono for numeric outputs, yellow-highlighted input fields, and a responsive two-column (7/5) desktop / single-column mobile layout
+The app is a German payroll wage calculator (Lohnabrechnung) using PAP 2026 logic. It has:
+- A WageCalculator page with wage entries table, entry forms, and a PayrollSummary
+- A React + TypeScript frontend with Tailwind CSS and OKLCH design tokens
+- Backend integration for CRUD wage entries
 
-**User-visible outcome:** Users can enter employee wage data and tax/SV parameters, instantly see a fully calculated German payroll breakdown (taxes, social insurance, employer costs, KPIs), and export the result as a formatted XLSX or PDF file — all running entirely in the browser.
+## Requested Changes (Diff)
+
+### Add
+- **AOK Lohnrechner page** (`AokCalculator.tsx`): A standalone, self-contained German net wage calculator modeled after the AOK Brutto-Netto-Rechner UI shown in the uploaded screenshot.
+  - Three tab sections at top: "Arbeitnehmer", "Arbeitgeber", "weitere Angaben"
+  - **Arbeitnehmer tab inputs**:
+    - Zuständige AOK (dropdown: regional AOK options)
+    - Berechnungszeitraum (radio: Jahr / Monat / Teilmonat)
+    - Bruttolohn input (highlighted yellow/green, editable)
+    - Umständige oder befristete Beschäftigung (dropdown: nein/ja)
+    - Beschäftigung in der Berufsausbildung (checkbox)
+    - Beschäftigungsort (dropdown: Bitte auswählen + all 16 states)
+    - Beitragsschlag zur Pflegeversicherung (radio: ja, über 23 Jahre und kinderlos / nein, unter 23 Jahre oder Kinder)
+    - Lohnsteuerklasse (radio: I, II, III, IV, V, VI)
+    - Kinderfreibeträge (dropdown: 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6)
+    - Kirchensteuer (dropdown: keine Kirchensteuer + all states)
+    - Geburtsjahr (dropdown: nach 1961 / 1961 und früher)
+    - Altersentlastungsbetrag (checkbox)
+    - Beitragsgruppe KV (dropdown: 1 - KV-Pflicht, allgemeiner Beitrag)
+    - Beitragsgruppe RV (dropdown: 1 - RV-Pflicht, voller Beitrag)
+    - Beitragsgruppe AV (dropdown: 1 - AV-Pflicht, voller Beitrag)
+    - Beitragsgruppe PV (dropdown: 1 - PV-Pflicht)
+  - **Results section** (below inputs, always visible):
+    - Bruttolohn display
+    - Lohnsteuer (−)
+    - Kirchensteuer (−)
+    - Solidaritätszuschlag (−)
+    - Steuern gesamt
+    - Krankenversicherung (−)
+    - Zusatzbeitrag (−)
+    - Rentenversicherung (−)
+    - Arbeitslosenversicherung (−)
+    - Pflegeversicherung (−)
+    - Sozialabgaben gesamt
+    - **Nettogehalt** (highlighted result)
+    - Download PDF / Excel buttons
+  - All calculations done purely in frontend (no backend calls), using PAP 2026 logic
+  - Uses localStorage prefix `aok_` for persisting inputs
+
+- **Tab navigation in App.tsx** to switch between "Lohnabrechnung" (existing) and "AOK Lohnrechner" (new)
+
+### Modify
+- `App.tsx`: Add tab/button navigation at top to switch between WageCalculator and AokCalculator pages
+
+### Remove
+- Nothing removed
+
+## Implementation Plan
+
+1. Create `src/frontend/src/pages/AokCalculator.tsx` with:
+   - Full PAP 2026 net wage calculation logic (inline, no backend)
+   - All AOK-style input fields as shown in screenshot
+   - Real-time recalculation on every input change
+   - Results panel with all deduction line items
+   - localStorage persistence with `aok_` prefix
+   - PDF/Excel export buttons (using jsPDF/SheetJS from CDN or inline calculation export)
+
+2. Update `App.tsx`:
+   - Add state for active page (`'wage' | 'aok'`)
+   - Add tab buttons in header or just below header
+   - Render AokCalculator or WageCalculator based on active tab
